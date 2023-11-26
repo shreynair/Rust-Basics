@@ -15,8 +15,12 @@
 /// gauss(5)  -> 15
 /// gauss(10) -> 55
 /// gauss(-2) -> -1
-pub fn gauss(n: i32) -> i32 
-
+pub fn gauss(n: i32) -> i32 {
+  if n < 0 {
+    return -1;
+  }
+  return (n * (n+1))/2;
+}
 
 /// Returns a count of elements in `slice` of i32that satisfy:
 ///   lo <= x <= hi
@@ -27,7 +31,16 @@ pub fn gauss(n: i32) -> i32
 /// in_range([5,2,1,3,9], 3, 4)  -> 1
 /// in_range([5,2,1,3,9], 2, 10) -> 4
 /// in_range([], 2, 10)          -> 0
-pub fn in_range(slice: &[i32], lo: i32, hi: i32) -> i32 
+pub fn in_range(slice: &[i32], lo: i32, hi: i32) -> i32 {
+  let mut count = 0;
+  for i in slice {
+    if lo <= *i && *i <= hi {
+      count = count + 1;
+    }
+  }
+
+  return count
+}
 
 /// Calculates and returns the mean of elements in `slice` of floating
 /// point values. To handle empty slices, this function returns an
@@ -37,7 +50,18 @@ pub fn in_range(slice: &[i32], lo: i32, hi: i32) -> i32
 /// mean([])                     -> None
 /// mean([10.0, 5.0, 7.0, 20.0]) -> Some(10.5)
 /// mean([-10.0, 3.0, 2.0])      -> Some(-1.6666)
-pub fn mean(slice: &[f64]) -> Option<f64> 
+pub fn mean(slice: &[f64]) -> Option<f64> {
+  let mut total = 0.0;
+  match slice.len() {
+    0 => return None,
+    len => {
+     for i in slice {
+       total = total + *i;
+     } 
+     return Some(total/(len as f64));
+    }
+  };
+}
 
 /// Returns true if `slicea` is a subset of `sliceb` and false
 /// otherwise. The function is generic so works with slices of any
@@ -52,8 +76,15 @@ pub fn mean(slice: &[f64]) -> Option<f64>
 ///
 /// NOTE: Utilizing certain methods of slices may lead to shorter code
 /// by letting methods detect whether elements are contained or not.
-pub fn subset<T>(slicea: &[T], sliceb: &[T]) -> bool
-  where T: PartialEq<T>         // to compare elements via ==, type must implement PartialEq Trait
+pub fn subset<T>(slicea: &[T], sliceb: &[T]) -> bool 
+  where T: PartialEq<T> {
+    for i in slicea {
+      if !sliceb.contains(i) {
+        return false;
+      }
+    }
+    return true;
+  }        // to compare elements via ==, type must implement PartialEq Trait
 
 /// Return a string showing the binary digits of the given unsigned
 /// (positive) integer. Calculates the binary digits through repeated
@@ -78,7 +109,24 @@ pub fn subset<T>(slicea: &[T], sliceb: &[T]) -> bool
 /// to_binstring(  9) ->      "1001"
 /// to_binstring( 32) ->    "100000"
 /// to_binstring(510) -> "111111110"
-pub fn to_binstring(num: u32) -> String 
+pub fn to_binstring(num: u32) -> String {
+  let mut bin = String::from("");
+  let mut dec = num;
+  while dec != 0 {
+    if dec % 2 == 0 {
+      bin = format!("{}{}", "0", bin);
+    } else {
+      bin = format!("{}{}", "1", bin);
+    }
+    dec = dec / 2;
+  }
+
+  if bin.eq(&"") {
+    bin.push_str("0");
+  }
+
+  return bin;
+}
 
 /// Construct a circulant matrix (2D vector) from the given
 /// slice. Briefly a circulant matrix has row i rotated left by i
@@ -102,7 +150,23 @@ pub fn to_binstring(num: u32) -> String
 ///   ["c","d","a","b"]
 ///   ["d","a","b","c"]]
 pub fn circulant<T>(r0_slice: &[T]) -> Vec<Vec<T>>
-  where T:Clone                 // elements implement Clone so have .clone()
+  where T:Clone {
+    let len = r0_slice.len();
+    let mut circ: Vec<Vec<T>>  = vec![];
+    for _ in 0..len {
+      circ.push(vec![]);
+    }
+
+    for i in 0..len {
+      let mut j = i;
+      for _ in 0..len {
+        circ[i].push(r0_slice[j % len].clone());
+        j += 1;
+      }
+    }
+
+    return circ;
+  }                 // elements implement Clone so have .clone()
 
 
 /// Returns a count of the number of "words" in `text`. The notion of
@@ -122,4 +186,19 @@ pub fn circulant<T>(r0_slice: &[T]) -> Vec<Vec<T>>
 /// count_words( &String::from("       "))                              -> 0
 /// count_words( &String::from("ALL ... NON - whitespace !! "))         -> 6
 /// count_words( &String::from("tabs\tor spaces\tor\ttabs\tor spaces")) -> 7
-pub fn count_words(text: &String) -> i32 
+pub fn count_words(text: &String) -> i32 {
+  let mut word = false;
+  let mut count = 0;
+
+  for i in text.chars() {
+    if i == ' ' || i == '\t' || i == '\n' {
+      word = false;
+    } else if word == false {
+      word = true;
+      count += 1;
+    }
+  }
+
+  return count;
+
+}
