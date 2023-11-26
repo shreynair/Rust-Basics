@@ -30,7 +30,7 @@ fn main() {
     }
 
     let file = match File::open(&args[1]) {
-        Err(why) => {println!("Couldn't open {}: {}", args[0],why); exit(1)},    
+        Err(why) => {println!("Couldn't open file {}: {}", args[1],why); exit(1)},    
         Ok(file) => file
     };
 
